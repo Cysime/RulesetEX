@@ -86,7 +86,7 @@ async function walk(dir: string, baseUrl: string) {
                     </a>
                 </li>
             `;}
-            tree;
+            return tree;
         }
     }
     return tree;
