@@ -15,13 +15,11 @@ jobs:
         with:
           token: ${{ secrets.PAT }}
 
-      - name: Download the file
-        uses: suisei-cn/actions-download-file@818d6b7dc8fe73f2f924b6241f2b1134ca1377d9
-        id: downloadfile
-        with:
-          url: "https://cdn.jsdelivr.net/npm/workbox-sw@5.1.3/build/workbox-sw.min.js"
-          target: External/
-
+      - name: Download external files
+        run: |
+            curl https://https://a.dove.isdumb.one/pihole.txt > External/adobe.conf
+            curl https://jsdelivr.kemono.de/gh/Loyalsoldier/surge-rules@release/gfw.txt > External/adobe.conf
+            
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
