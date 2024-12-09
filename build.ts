@@ -16,6 +16,9 @@ const allowedExtensions = [
     ".conf",
     ".md",
 ];
+const moduleExtensions = [
+    ".sgmodule",
+];
 const allowedDirectories = ["Official", "Surge", "Beta", "Snippet", "External"];
 
 const prioritySorter = (a: Dirent, b: Dirent) => {
@@ -47,7 +50,7 @@ async function walk(dir: string, baseUrl: string) {
                     </ul>
                 </li>
             `;
-        } else if (allowedExtensions.some((ext) => entry.name.endsWith(ext))) {
+        } else if (moduleExtensions.some((ext) => entry.name.endsWith(ext))) {
             tree += `
                 <li>
                     <a class="file" href="${url}" target="_blank">${entry.name}
