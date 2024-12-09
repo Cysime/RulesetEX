@@ -72,11 +72,12 @@ async function walk(dir: string, baseUrl: string) {
                     </a>
                 </li>
             `;}
-            return {
+            else {
                 tree += `
                 <li>
                     <a class="file" href="${url}" target="_blank">${entry.name} </a>
-                    </li>`
+                </li>
+                `
             }
         }
     }
