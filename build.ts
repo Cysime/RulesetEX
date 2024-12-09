@@ -16,7 +16,7 @@ const allowedExtensions = [
     ".conf",
     ".md",
 ];
-const allowedDirectories = ["Official", "Surge", "Beta", "Snippet"];
+const allowedDirectories = ["Official", "Surge", "Beta", "Snippet", "External"];
 
 const prioritySorter = (a: Dirent, b: Dirent) => {
     if (a.isDirectory() && !b.isDirectory()) return -1;
