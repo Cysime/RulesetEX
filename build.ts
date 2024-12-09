@@ -16,9 +16,6 @@ const allowedExtensions = [
     ".conf",
     ".md",
 ];
-const moduleExtensions = [
-    ".sgmodule",
-];
 const allowedDirectories = ["Official", "Surge", "Beta", "Snippet", "External"];
 
 const prioritySorter = (a: Dirent, b: Dirent) => {
@@ -51,7 +48,40 @@ async function walk(dir: string, baseUrl: string) {
                 </li>
             `;
         } else if (allowedExtensions.some((ext) => entry.name.endsWith(ext))) {
-            tree;
+            tree += `
+                <li>
+                    <a class="file" href="${url}" target="_blank">${entry.name}
+                        <a
+                            style="border-bottom: none"
+                            href="surge:///install-module?url=${encodeURIComponent(
+                                url
+                            )}"
+                            target="_blank"
+                        >
+                            <img
+                            alt="导入 Surge(远程模块)"
+                            title="导入 Surge(远程模块)"
+                            style="height: 22px"
+                            src="https://raw.githubusercontent.com/xream/scripts/refs/heads/main/scriptable/surge/surge-transparent.png"
+                            />
+                        </a>
+                        <a
+                            style="border-bottom: none"
+                            href="scriptable:///run/SurgeModuleTool?url=${encodeURIComponent(
+                                url
+                            )}"
+                            target="_blank"
+                        >
+                            <img
+                            alt="导入 Surge(本地模块 需配合 Scriptable + Script Hub 的 Surge 模块工具)"
+                            title="导入 Surge(本地模块 需配合 Scriptable + Script Hub 的 Surge 模块工具)"
+                            style="height: 22px"
+                            src="https://raw.githubusercontent.com/Script-Hub-Org/Script-Hub/refs/heads/main/assets/icon512x512.png"
+                            />
+                        </a>
+                    </a>
+                </li>
+            `;
         }
     }
     return tree;
@@ -64,7 +94,7 @@ function generateHtml(tree: string) {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Repository Structure</title>
+            <title>Cysime's Ruleset EXtended</title>
             <link rel="stylesheet" href="https://cdn.skk.moe/ruleset/css/21d8777a.css" />
             <style>
                  /* 文件夹样式 */
@@ -130,8 +160,8 @@ function generateHtml(tree: string) {
 
             <!-- 搜索和提示区域 -->
             <div class="search-section">
-                <input type="text" id="search" placeholder=" 搜索文件和文件夹..."/>
-                <span> 一键导入操作说明</span>
+                <input type="text" id="search" placeholder="🔍 搜索文件和文件夹..."/>
+                <span>ℹ️ 一键导入操作说明</span>
                 <br>
                 <small>
                     <img
