@@ -13,12 +13,10 @@ const allowedExtensions = [
     ".sgmodule",
     ".list",
     ".txt",
-    ".js",
-    ".json",
-    ".gitignore",
+    ".conf",
     ".md",
 ];
-const allowedDirectories = ["Official", "Surge", "Beta"];
+const allowedDirectories = ["Official", "Surge", "Beta", "Snippet"];
 
 const prioritySorter = (a: Dirent, b: Dirent) => {
     if (a.isDirectory() && !b.isDirectory()) return -1;
@@ -151,14 +149,9 @@ function generateHtml(tree: string) {
         </head>
         <body>
         <main class="container">
-            <h1> LoonKissSurge Repository </h1>
+            <h1> Cysime's Ruleset EXtended </h1>
             <p>
-            Made by <a href="https://github.com/QingRex">Ling KeQing</a> | <a href="https://github.com/QingRex/LoonKissSurge/">Source @ GitHub</a>  | Fork <a href="https://github.com/SukkaW/Surge">Sukka</a> 
-            </p>
-            <p>
-            Thanks To <a href="https://github.com/luestr">iKeLee</a> For Her Great Work
-            <br>
-            Thanks To All Surge Contributors
+            Made by <a href="https://cysi.me">Cysime</a> | <a href="https://github.com/Cysime/RulesetEX/">Source @ GitHub</a>  | Fork <a href="https://github.com/QingRex/LoonKissSurge">QingRex</a> 
             </p>
             <p>Last Build: ${new Date().toLocaleString("zh-CN", {
                 timeZone: "Asia/Shanghai",
@@ -167,8 +160,8 @@ function generateHtml(tree: string) {
 
             <!-- 搜索和提示区域 -->
             <div class="search-section">
-                <input type="text" id="search" placeholder="🔍 搜索文件和文件夹..."/>
-                <span>ℹ️ 一键导入操作说明</span>
+                <input type="text" id="search" placeholder=" 搜索文件和文件夹..."/>
+                <span> 一键导入操作说明</span>
                 <br>
                 <small>
                     <img
