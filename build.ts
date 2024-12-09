@@ -48,7 +48,26 @@ async function walk(dir: string, baseUrl: string) {
                 </li>
             `;
         } else if (allowedExtensions.some((ext) => entry.name.endsWith(ext))) {
-            tree += ``;
+            tree += `
+                <li>
+                    <a class="file" href="${url}" target="_blank">${entry.name}
+                        <a
+                            style="border-bottom: none"
+                            href="surge:///install-module?url=${encodeURIComponent(
+                                url
+                            )}"
+                            target="_blank"
+                        >
+                            <img
+                            alt="导入 Surge(远程模块)"
+                            title="导入 Surge(远程模块)"
+                            style="height: 22px"
+                            src="https://raw.githubusercontent.com/xream/scripts/refs/heads/main/scriptable/surge/surge-transparent.png"
+                            />
+                        </a>
+                    </a>
+                </li>
+            `;
         }
     }
     return tree;
