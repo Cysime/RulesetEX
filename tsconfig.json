@@ -7,7 +7,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
+  "ts-node": {
+    // Tell ts-node CLI to install the --loader automatically
+    "esm": true
+    },
   "include": ["./**/*.ts"],
   "exclude": ["node_modules"]
 }
-
