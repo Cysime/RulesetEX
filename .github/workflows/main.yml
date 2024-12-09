@@ -1,0 +1,28 @@
+name: "Download External Rulesets"
+
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "0 2 * * *"
+
+jobs:
+  download_file:
+    name: Download External Rulesets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out current commit
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Download the file
+        uses: suisei-cn/actions-download-file@818d6b7dc8fe73f2f924b6241f2b1134ca1377d9
+        id: downloadfile
+        with:
+          url: "https://cdn.jsdelivr.net/npm/workbox-sw@5.1.3/build/workbox-sw.min.js"
+          target: External/
+
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          token: ${{ secrets.PAT }}
