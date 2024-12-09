@@ -17,8 +17,8 @@ jobs:
 
       - name: Download external files
         run: |
-            curl https://https://a.dove.isdumb.one/pihole.txt > External/adobe.conf
-            curl https://jsdelivr.kemono.de/gh/Loyalsoldier/surge-rules@release/gfw.txt > External/adobe.conf
+            curl https://https://a.dove.isdumb.one/pihole.txt -o External/adobe.conf
+            curl https://jsdelivr.kemono.de/gh/Loyalsoldier/surge-rules@release/gfw.txt -o External/gfw.conf
             
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v5
