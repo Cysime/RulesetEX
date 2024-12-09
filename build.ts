@@ -51,42 +51,7 @@ async function walk(dir: string, baseUrl: string) {
                 </li>
             `;
         } else if (allowedExtensions.some((ext) => entry.name.endsWith(ext))) {
-            if (moduleExtensions.some((ext) => entry.name.endsWith(ext))) {
-            tree += `
-                <li>
-                    <a class="file" href="${url}" target="_blank">${entry.name}
-                        <a
-                            style="border-bottom: none"
-                            href="surge:///install-module?url=${encodeURIComponent(
-                                url
-                            )}"
-                            target="_blank"
-                        >
-                            <img
-                            alt="导入 Surge(远程模块)"
-                            title="导入 Surge(远程模块)"
-                            style="height: 22px"
-                            src="https://raw.githubusercontent.com/xream/scripts/refs/heads/main/scriptable/surge/surge-transparent.png"
-                            />
-                        </a>
-                        <a
-                            style="border-bottom: none"
-                            href="scriptable:///run/SurgeModuleTool?url=${encodeURIComponent(
-                                url
-                            )}"
-                            target="_blank"
-                        >
-                            <img
-                            alt="导入 Surge(本地模块 需配合 Scriptable + Script Hub 的 Surge 模块工具)"
-                            title="导入 Surge(本地模块 需配合 Scriptable + Script Hub 的 Surge 模块工具)"
-                            style="height: 22px"
-                            src="https://raw.githubusercontent.com/Script-Hub-Org/Script-Hub/refs/heads/main/assets/icon512x512.png"
-                            />
-                        </a>
-                    </a>
-                </li>
-            `;}
-            return tree;
+            tree;
         }
     }
     return tree;
