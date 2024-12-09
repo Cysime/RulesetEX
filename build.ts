@@ -50,7 +50,8 @@ async function walk(dir: string, baseUrl: string) {
                     </ul>
                 </li>
             `;
-        } else if (moduleExtensions.some((ext) => entry.name.endsWith(ext))) {
+        } else if (allowedExtensions.some((ext) => entry.name.endsWith(ext))) {
+            if (moduleExtensions.some((ext) => entry.name.endsWith(ext))) {
             tree += `
                 <li>
                     <a class="file" href="${url}" target="_blank">${entry.name}
@@ -84,7 +85,8 @@ async function walk(dir: string, baseUrl: string) {
                         </a>
                     </a>
                 </li>
-            `;
+            `;}
+            tree;
         }
     }
     return tree;
