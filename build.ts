@@ -76,7 +76,7 @@ async function walk(dir: string, baseUrl: string) {
                 tree += `
                 <li>
                     <a class="file" href="${url}" target="_blank">${entry.name} </a>
-                    </li>
+                    </li>`
             }
         }
     }
