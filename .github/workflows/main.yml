@@ -18,8 +18,10 @@ jobs:
       - name: Download external files
         run: |
             curl https://a.dove.isdumb.one/pihole.txt > External/adobe.conf
+      - name: Download external files - GFWLIST
+        run: |
             curl https://raw.githubusercontent.com/Loyalsoldier/surge-rules/refs/heads/release/gfw.txt > External/gfw.conf
-            
+
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
