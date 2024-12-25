@@ -6,7 +6,8 @@ import { promises as fs, Dirent } from "node:fs"; // 使用 fs.promises 和 Dire
 const REPO_URL =
     "https://raw.ruleset.rss.ovh/";
 const ROOT_DIR = process.cwd(); // 根目录
-const OUTPUT_DIR = path.join(ROOT_DIR, "public/Artifacts");
+const OUTPUT_DIR = path.join(ROOT_DIR, "public");
+const RAW_DIR = path.join(ROOT_DIR, "Artifacts");
 
 // 仅包括特定后缀类型的文件
 const allowedExtensions = [
@@ -239,7 +240,7 @@ async function writeHtmlFile(html: string) {
 async function build() {
     await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
-    const tree = await walk(ROOT_DIR, REPO_URL);
+    const tree = await walk(RAW_DIR, REPO_URL);
     const html = generateHtml(tree);
     await writeHtmlFile(html);
 }
