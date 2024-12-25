@@ -6,7 +6,7 @@ import { promises as fs, Dirent } from "node:fs"; // 使用 fs.promises 和 Dire
 const REPO_URL =
     "https://raw.ruleset.rss.ovh/";
 const ROOT_DIR = process.cwd(); // 根目录
-const OUTPUT_DIR = path.join(ROOT_DIR, "public");
+const OUTPUT_DIR = path.join(ROOT_DIR, "public/Artifacts");
 
 // 仅包括特定后缀类型的文件
 const allowedExtensions = [
