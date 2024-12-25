@@ -17,10 +17,10 @@ jobs:
 
       - name: Download external files
         run: |
-            curl https://a.dove.isdumb.one/pihole.txt > External/adobe.conf
-            curl https://raw.githubusercontent.com/Loyalsoldier/surge-rules/refs/heads/release/gfw.txt > External/gfw.conf
-            curl https://raw.githubusercontent.com/misakaio/chnroutes2/refs/heads/master/chnroutes.txt > External/direct_ip.conf
-            curl https://core.telegram.org/resources/cidr.txt > External/telegram_ip.conf
+            curl https://a.dove.isdumb.one/pihole.txt > Artifacts/External/adobe.conf
+            curl https://raw.githubusercontent.com/Loyalsoldier/surge-rules/refs/heads/release/gfw.txt > Artifacts/External/gfw.conf
+            curl https://raw.githubusercontent.com/misakaio/chnroutes2/refs/heads/master/chnroutes.txt > Artifacts/External/direct_ip.conf
+            curl https://core.telegram.org/resources/cidr.txt > Artifacts/External/telegram_ip.conf
 
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v5
