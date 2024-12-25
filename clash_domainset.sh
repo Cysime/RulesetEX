@@ -19,25 +19,15 @@ mkdir -p "$output_dir"
 
 find "$input_dir" -maxdepth 1 -type f -name "*.$extension" | while read -r file; do
     filename=$(basename "$file")
-    temp_file=$(mktemp)
-    needs_modification=false
-    
+    # 清空输出文件（如果存在）
+    : > "$output_dir/$filename"
     while IFS= read -r line || [ -n "$line" ]; do
         if [[ $line =~ ^\..*$ ]]; then
-            echo "+$line" >> "$temp_file"
-            needs_modification=true
+            echo "+$line" >> "$output_dir/$filename"
         else
-            echo "$line" >> "$temp_file"
+            echo "$line" >> "$output_dir/$filename"
         fi
     done < "$file"
-    
-    if [ "$needs_modification" = true ]; then
-        mv "$temp_file" "$output_dir/$filename"
-        echo "已处理: $filename"
-    else
-        rm "$temp_file"
-        echo "跳过: $filename (无需修改)"
-    fi
 done
 
 echo "处理完成。文件已保存到 $output_dir 目录。"
