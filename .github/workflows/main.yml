@@ -22,6 +22,12 @@ jobs:
             curl https://raw.githubusercontent.com/misakaio/chnroutes2/refs/heads/master/chnroutes.txt > Artifacts/External/direct_ip.conf
             curl https://core.telegram.org/resources/cidr.txt > Artifacts/External/telegram_ip.conf
 
+      - name: Generate new files
+        run: |
+            chmod a+x clash_domainset.sh
+            ./clash_domainset.sh Artifacts/External Artifacts/External/Clash conf
+            ./clash_domainset.sh Artifacts/Snippet/Domainset Artifacts/Snippet/Domainset/Clash conf
+
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
