@@ -4,7 +4,7 @@ import path from "node:path";
 import { promises as fs, Dirent } from "node:fs"; // 使用 fs.promises 和 Dirent
 
 const REPO_URL =
-    "https://jsdelivr.kemono.de/gh/Cysime/RulesetEX@main/";
+    "https://raw.ruleset.rss.ovh/";
 const ROOT_DIR = process.cwd(); // 根目录
 const OUTPUT_DIR = path.join(ROOT_DIR, "public");
 
