@@ -14,12 +14,11 @@ const allowedExtensions = [
     ".list",
     ".txt",
     ".conf",
-    ".md",
 ];
 const moduleExtensions = [
     ".sgmodule",
 ];
-const allowedDirectories = ["Official", "Surge", "Beta", "Snippet", "External", "Domainset", "Classic"];
+const allowedDirectories = ["Artifacts", "Official", "Surge", "Beta", "Snippet", "External", "Domainset", "Classic"];
 
 const prioritySorter = (a: Dirent, b: Dirent) => {
     if (a.isDirectory() && !b.isDirectory()) return -1;
