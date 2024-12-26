@@ -5,6 +5,8 @@ on:
   schedule:
   - cron: "0 2 * * *"
   push:
+    paths:
+    - '**.conf'
 
 jobs:
   download_file:
