@@ -1,4 +1,4 @@
-name: "Download External Rulesets"
+name: "Download External Rulesets & Generate Clash Domainset"
 
 on:
   workflow_dispatch:
@@ -6,8 +6,8 @@ on:
   - cron: "0 2 * * *"
   push:
     paths:
-    - '**.conf'
-
+      - 'Artifacts/Snippet/Domainset/**.conf'
+      - '!Artifacts/Snippet/Domainset/Clash/**'
 jobs:
   download_file:
     name: Download External Rulesets
