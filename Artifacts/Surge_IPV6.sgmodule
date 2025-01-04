@@ -1,0 +1,5 @@
+#!name=[Yukiakari] Enable IPV6 and IPV6 VIF
+
+[General]
+ipv6 = true
+ipv6-vif = auto
