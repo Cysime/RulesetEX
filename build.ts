@@ -1,27 +1,38 @@
 /** @format */
 
 import path from "node:path";
-import { promises as fs, Dirent } from "node:fs"; // 使用 fs.promises 和 Dirent
+import { promises as fs, Dirent } from "node:fs";
 
-const REPO_URL =
-    "https://raw.ruleset.rss.ovh/";
-const ROOT_DIR = process.cwd(); // 根目录
+// ── Configuration ─────────────────────────────────────────────────────────────
+
+/** The public URL of the deployed site — used for Surge import deep links */
+const SITE_URL = (process.env.SITE_URL ?? "https://ruleset.rss.ovh").replace(/\/$/, "");
+
+const ROOT_DIR   = process.cwd();
 const OUTPUT_DIR = path.join(ROOT_DIR, "public");
-const RAW_DIR = path.join(ROOT_DIR, "Artifacts");
+const RAW_DIR    = path.join(ROOT_DIR, "Artifacts");
+const SRC_DIR    = path.join(ROOT_DIR, "src");
 
-// 仅包括特定后缀类型的文件
-const allowedExtensions = [
-    ".sgmodule",
-    ".list",
-    ".txt",
-    ".conf",
-];
-const moduleExtensions = [
-    ".sgmodule",
-];
-const allowedDirectories = ["Artifacts", "Clash", "Surge", "Beta", "Snippet", "External", "Domainset", "Classic"];
+const SURGE_ICON_URL =
+    "https://raw.githubusercontent.com/xream/scripts/refs/heads/main/scriptable/surge/surge-transparent.png";
 
-const prioritySorter = (a: Dirent, b: Dirent) => {
+/** Only files with these extensions are listed in the HTML */
+const ALLOWED_EXTENSIONS = [".sgmodule", ".list", ".txt", ".conf"];
+
+/** Files ending with these extensions get a Surge one-click import button */
+const MODULE_EXTENSIONS = [".sgmodule"];
+
+/** Only directories with these names are descended into */
+const ALLOWED_DIRECTORIES = ["Clash", "Surge", "Beta", "Snippet", "External", "Domainset", "Classic"];
+
+// ── Icons ─────────────────────────────────────────────────────────────────────
+
+const FOLDER_SVG = `<svg class="folder-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"/></svg>`;
+const FILE_SVG = `<svg class="file-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor"><path d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm384 64H256V0L384 128z"/></svg>`;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const prioritySorter = (a: Dirent, b: Dirent): number => {
     if (a.isDirectory() && !b.isDirectory()) return -1;
     if (!a.isDirectory() && b.isDirectory()) return 1;
     if (a.isDirectory() && b.isDirectory()) {
@@ -31,220 +42,155 @@ const prioritySorter = (a: Dirent, b: Dirent) => {
     return a.name.localeCompare(b.name);
 };
 
-// 生成目录树
-async function walk(dir: string, baseUrl: string) {
+/** Recursively copy a directory tree */
+async function copyDir(src: string, dest: string): Promise<void> {
+    await fs.mkdir(dest, { recursive: true });
+    const entries = await fs.readdir(src, { withFileTypes: true });
+    await Promise.all(
+        entries.map(async (entry) => {
+            const srcPath  = path.join(src, entry.name);
+            const destPath = path.join(dest, entry.name);
+            if (entry.isDirectory()) {
+                await copyDir(srcPath, destPath);
+            } else {
+                await fs.copyFile(srcPath, destPath);
+            }
+        })
+    );
+}
+
+// ── Tree builder ──────────────────────────────────────────────────────────────
+
+/**
+ * Recursively walk `dir` and build an HTML fragment.
+ * `relPath` accumulates the relative path from Artifacts root, e.g. "External" or "External/Clash".
+ */
+async function walk(dir: string, relPath: string): Promise<string> {
     let tree = "";
     const entries = await fs.readdir(dir, { withFileTypes: true });
     entries.sort(prioritySorter);
 
     for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        const url = `${baseUrl}${encodeURIComponent(entry.name)}`;
+        const childRel  = relPath ? `${relPath}/${entry.name}` : entry.name;
+        const childFull = path.join(dir, entry.name);
 
-        if (entry.isDirectory() && allowedDirectories.includes(entry.name)) {
+        if (entry.isDirectory() && ALLOWED_DIRECTORIES.includes(entry.name)) {
+            const children = await walk(childFull, childRel);
             tree += `
-                <li class="folder">
-                    ${entry.name}
-                    <ul>
-                        ${await walk(fullPath, `${url}/`)}
-                    </ul>
-                </li>
-            `;
-        } else if (allowedExtensions.some((ext) => entry.name.endsWith(ext))) {
-            if (moduleExtensions.some((ext) => entry.name.endsWith(ext))) {
+            <li class="folder">
+                <div class="folder-header">
+                    <span class="folder-icon">▾</span>
+                    <span class="folder-icon-wrapper">${FOLDER_SVG}</span>
+                    <span>${entry.name}</span>
+                </div>
+                <ul>${children}</ul>
+            </li>`;
+        } else if (ALLOWED_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) {
+            // Relative URL from the index.html (e.g. ./External/adobe.conf)
+            const relUrl = `./${childRel}`;
+            // Absolute URL used for deep-link buttons (e.g. Surge import)
+            const absUrl = `${SITE_URL}/${childRel}`;
+
+            const surgeButton = MODULE_EXTENSIONS.some((ext) => entry.name.endsWith(ext))
+                ? `<a class="surge-link"
+                       href="surge:///install-module?url=${encodeURIComponent(absUrl)}"
+                       target="_blank"
+                       title="Import into Surge (remote module)">
+                       <img class="surge-icon" src="${SURGE_ICON_URL}" alt="Import to Surge" />
+                   </a>`
+                : "";
+
             tree += `
-                <li>
-                    <a class="file" href="${url}" target="_blank">${entry.name}
-                        <a
-                            style="border-bottom: none"
-                            href="surge:///install-module?url=${encodeURIComponent(
-                                url
-                            )}"
-                            target="_blank"
-                        >
-                            <img
-                            alt="导入 Surge(远程模块)"
-                            title="导入 Surge(远程模块)"
-                            style="height: 22px"
-                            src="https://raw.githubusercontent.com/xream/scripts/refs/heads/main/scriptable/surge/surge-transparent.png"
-                            />
-                        </a>
-                    </a>
-                </li>
-            `;}
-            else {
-                tree += `
-                <li>
-                    <a class="file" href="${url}" target="_blank">${entry.name} </a>
-                </li>
-                `
-            }
+            <li class="file-item">
+                <span class="file-icon-wrapper" data-url="${relUrl}" title="Copy URL">
+                    ${FILE_SVG}
+                </span>
+                <a class="file-name" href="${relUrl}" target="_blank">${entry.name}</a>
+                ${surgeButton}
+            </li>`;
         }
     }
+
     return tree;
 }
 
-function generateHtml(tree: string) {
-    return `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Cysime's Ruleset EXtended</title>
-            <link rel="stylesheet" href="https://cdn.skk.moe/ruleset/css/21d8777a.css" />
-            <style>
-                 /* 文件夹样式 */
-                .folder {
-                    cursor: pointer;
-                    font-weight: bold;
-                    list-style-type: none;
-                    padding-left: 0
-                }
-                .folder ul {
-                    display: block;
-                    border-left: 1px dashed #ddd;
-                    margin-left: 10px;
-                    padding-left: 20px
-                }
-                .folder.collapsed ul {
-                    display: none;
-                }
-                .hidden {
-                    display: none;
-                }
-            
-                /* 搜索框样式 */
-                #search {
-                    width: 100%;
-                    padding: 10px 15px;
-                    margin: 20px 0;
-                    font-size: 1rem;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-                    transition: all 0.3s ease;
-                }
-                #search:focus {
-                    border-color: #007bff;
-                    outline: none;
-                    box-shadow: 0px 4px 12px rgba(0, 123, 255, 0.4);
-                }
-            
-                /* 容器的整体布局调整 */
-                .container {
-                    padding: 20px;
-                }
-                .search-section {
-                    margin-bottom: 30px; /* 添加底部外边距 */
-                }
-                .directory-list {
-                    margin-top: 20px; /* 树形目录顶部增加空隙 */
-                    padding-left: 0; /* 确保与其他内容左对齐 */
-                }
-            </style>
-        </head>
-        <body>
-        <main class="container">
-            <h1> Cysime's Ruleset EXtended </h1>
+// ── HTML template ─────────────────────────────────────────────────────────────
+
+function generateHtml(tree: string, css: string, js: string): string {
+    const buildTime = new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cysime's Ruleset EXtended</title>
+    <style>
+${css}
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header class="site-header">
+            <h1>Cysime's Ruleset EXtended</h1>
             <p>
-            Made by <a href="https://cysi.me">Cysime</a> | <a href="https://github.com/Cysime/RulesetEX/">Source @ GitHub</a>  | Fork <a href="https://github.com/QingRex/LoonKissSurge">QingRex</a> 
+                Made by <a href="https://cysi.me">Cysime</a> &nbsp;|&nbsp;
+                <a href="https://github.com/Cysime/RulesetEX/">Source @ GitHub</a> &nbsp;|&nbsp;
+                Fork <a href="https://github.com/QingRex/LoonKissSurge">QingRex</a>
             </p>
-            <p>Last Build: ${new Date().toLocaleString("zh-CN", {
-                timeZone: "Asia/Shanghai",
-            })}</p>
-            <br>
+            <p>Last Build: ${buildTime}</p>
+        </header>
 
-            <!-- 搜索和提示区域 -->
-            <div class="search-section">
-                <input type="text" id="search" placeholder="🔍 搜索文件和文件夹..."/>
-                <span>ℹ️ 一键导入操作说明</span>
-                <br>
-                <small>
-                    <img
-                        alt="导入 Surge(远程模块)"
-                        title="导入 Surge(远程模块)"
-                        style="height: 22px"
-                        src="https://raw.githubusercontent.com/xream/scripts/refs/heads/main/scriptable/surge/surge-transparent.png"
-                    />
-                    点击此图标, 可一键导入 Surge(远程模块)
-                </small>
-                <br>
-                <small>
-                    <img
-                    alt="导入 Surge(本地模块 需配合 Scriptable + Script Hub 的 Surge 模块工具)"
-                    title="导入 Surge(本地模块 需配合 Scriptable + Script Hub 的 Surge 模块工具)"
-                    style="height: 22px"
-                    src="https://raw.githubusercontent.com/Script-Hub-Org/Script-Hub/refs/heads/main/assets/icon512x512.png"
-                    />
-                    点击此图标, 可一键导入 Surge(本地模块 需配合 <a href="https://apps.apple.com/app/scriptable/id1405459188">Scriptable</a> + <a href="https://github.com/Script-Hub-Org/Script-Hub/wiki/%E7%9B%B8%E5%85%B3%E7%94%9F%E6%80%81:-Surge-%E6%A8%A1%E5%9D%97%E5%B7%A5%E5%85%B7">Script Hub 的 Surge 模块工具</a>)
-                </small>
-            </div>
+        <div class="search-wrap">
+            <input type="text" id="search" placeholder="🔍 Search files and folders…" autocomplete="off">
+        </div>
 
-            <!-- 目录树 -->
-            <ul class="directory-list">
-                ${tree}
-            </ul>
-        </main>
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const searchInput = document.getElementById('search');
-                searchInput.addEventListener('input', (event) => {
-                    const searchTerm = event.target.value.toLowerCase();
-                    const items = document.querySelectorAll('.directory-list li');
-                    const foldersToExpand = new Set();
-                
-                    items.forEach(item => {
-                        const text = item.textContent.toLowerCase();
-                        if (text.includes(searchTerm)) {
-                            item.classList.remove('hidden');
-                            // 将当前项的父文件夹添加到展开集合中
-                            let currentItem = item.closest('ul').parentElement;
-                            while (currentItem && currentItem.classList.contains('folder')) {
-                                foldersToExpand.add(currentItem);
-                                currentItem = currentItem.closest('ul').parentElement;
-                            }
-                        } else {
-                            item.classList.add('hidden');
-                        }
-                    });
-                
-                    // 展开所有需要展开的文件夹
-                    foldersToExpand.forEach(folder => {
-                        folder.classList.remove('collapsed');
-                    });
-                });
-            
-                document.querySelectorAll('.folder').forEach(folder => {
-                    folder.addEventListener('click', (event) => {
-                        if (event.target.classList.contains('file')) {
-                                return; 
-                                }
-                        event.stopPropagation();
-                        folder.classList.toggle('collapsed');
-                    });
-                });
-            });
-        </script>
-        </body>
-        </html>
-    `;
+        <div class="hints">
+            <img src="${SURGE_ICON_URL}" alt="Surge icon" />
+            Click the Surge icon to import a remote module directly into Surge
+        </div>
+
+        <ul class="directory-list">
+            ${tree}
+        </ul>
+    </main>
+
+    <script>
+${js}
+    </script>
+</body>
+</html>`;
 }
 
-async function writeHtmlFile(html: string) {
-    const htmlFilePath = path.join(OUTPUT_DIR, "index.html");
-    await fs.writeFile(htmlFilePath, html, "utf8");
-}
+// ── Build ─────────────────────────────────────────────────────────────────────
 
-// 构建
-async function build() {
+async function build(): Promise<void> {
+    console.log("🔨 Building…");
+
+    // 1. Ensure output directory exists
     await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
-    const tree = await walk(RAW_DIR, REPO_URL);
-    const html = generateHtml(tree);
-    await writeHtmlFile(html);
+    // 2. Read source CSS and JS (fail fast if missing)
+    const [css, js] = await Promise.all([
+        fs.readFile(path.join(SRC_DIR, "style.css"), "utf8"),
+        fs.readFile(path.join(SRC_DIR, "app.js"), "utf8"),
+    ]);
+
+    // 3. Copy all Artifacts → public/ preserving folder structure
+    console.log("📁 Copying Artifacts → public/…");
+    await copyDir(RAW_DIR, OUTPUT_DIR);
+
+    // 4. Walk Artifacts to build the file-tree HTML fragment
+    const tree = await walk(RAW_DIR, "");
+
+    // 5. Generate and write index.html (written last so it always wins)
+    const html = generateHtml(tree, css, js);
+    await fs.writeFile(path.join(OUTPUT_DIR, "index.html"), html, "utf8");
+
+    console.log("✅ Build complete →", OUTPUT_DIR);
 }
 
 build().catch((err) => {
-    console.error("Error during build:", err);
+    console.error("❌ Build failed:", err);
+    process.exit(1);
 });

@@ -1,0 +1,352 @@
+/* =============================================
+   CSS Variables — Light / Dark mode
+   ============================================= */
+:root {
+    --bg: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #666666;
+    --border: #e5e5e5;
+    --hover-bg: #f5f5f5;
+    --link: #0066cc;
+    --link-hover: #003f99;
+    --btn-bg: #f0f0f0;
+    --btn-border: #d8d8d8;
+    --btn-hover: #e2e2e2;
+    --btn-text: #555555;
+    --input-border: #d0d0d0;
+    --input-shadow: rgba(0, 0, 0, 0.06);
+    --indent-line: #ddd;
+    --folder-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #111111;
+        --text: #e0e0e0;
+        --text-muted: #888888;
+        --border: #2a2a2a;
+        --hover-bg: #1c1c1c;
+        --link: #6aadff;
+        --link-hover: #9ac8ff;
+        --btn-bg: #222222;
+        --btn-border: #333333;
+        --btn-hover: #2e2e2e;
+        --btn-text: #aaaaaa;
+        --input-border: #333333;
+        --input-shadow: rgba(0, 0, 0, 0.4);
+        --indent-line: #2d2d2d;
+    }
+}
+
+/* =============================================
+   Base
+   ============================================= */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    font-size: 15px;
+    transition: background 0.2s, color 0.2s;
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+/* =============================================
+   Layout
+   ============================================= */
+.container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+}
+
+/* =============================================
+   Header
+   ============================================= */
+.site-header {
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+}
+
+.site-header h1 {
+    font-size: 1.55rem;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.01em;
+}
+
+.site-header p {
+    margin: 3px 0;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+/* =============================================
+   Search
+   ============================================= */
+.search-wrap {
+    margin-bottom: 12px;
+}
+
+#search {
+    width: 100%;
+    padding: 9px 14px;
+    font-size: 0.9rem;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    box-shadow: 0 2px 6px var(--input-shadow);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+#search:focus {
+    border-color: var(--link);
+    box-shadow: 0 2px 10px var(--input-shadow);
+}
+
+/* =============================================
+   Hints bar
+   ============================================= */
+.hints {
+    margin: 8px 0 24px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.hints img {
+    height: 18px;
+    vertical-align: middle;
+    opacity: 0.85;
+}
+
+/* =============================================
+   Directory tree — shared
+   ============================================= */
+.directory-list,
+.directory-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.directory-list ul {
+    padding-left: 20px;
+    border-left: 1px dashed var(--indent-line);
+    margin-left: 10px;
+}
+
+/* =============================================
+   Folder rows
+   ============================================= */
+li.folder {
+    margin: 2px 0;
+}
+
+.folder-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: var(--folder-weight);
+    font-size: 0.9rem;
+    user-select: none;
+    transition: background 0.15s;
+    color: var(--text);
+}
+
+.folder-header:hover {
+    background: var(--hover-bg);
+}
+
+.folder-icon {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    transition: transform 0.18s ease;
+    flex-shrink: 0;
+}
+
+li.folder.collapsed > .folder-header .folder-icon {
+    transform: rotate(-90deg);
+}
+
+li.folder.collapsed > ul {
+    display: none;
+}
+
+/* =============================================
+   File rows
+   ============================================= */
+li.file-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    gap: 6px;
+    transition: background 0.15s;
+    margin: 1px 0;
+}
+
+li.file-item:hover {
+    background: var(--hover-bg);
+}
+
+/* SVG icon wrappers for folders and files */
+.folder-icon-wrapper,
+.file-icon-wrapper {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.folder-svg,
+.file-svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+}
+
+.file-name {
+    font-size: 0.875rem;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--link);
+    /* do not flex-grow — let the name sit naturally before the icons */
+}
+
+.file-name:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+/* =============================================
+   File icon copy interaction + tooltip
+   ============================================= */
+.file-icon-wrapper {
+    position: relative;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.file-icon-wrapper:hover {
+    color: var(--link);
+}
+
+.file-icon-wrapper.copied {
+    color: #22aa55;
+}
+
+/* Tooltip text bubble */
+.file-icon-wrapper::after {
+    content: "Copied!";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #22aa55;
+    color: #fff;
+    padding: 3px 6px;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+    pointer-events: none;
+    z-index: 10;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+/* Tooltip arrow */
+.file-icon-wrapper::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    border: 4px solid transparent;
+    border-top-color: #22aa55;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Show tooltip when copied */
+.file-icon-wrapper.copied::after,
+.file-icon-wrapper.copied::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-4px);
+}
+
+.surge-link {
+    display: flex;
+    align-items: center;
+    border: none;
+}
+
+.surge-icon {
+    height: 20px;
+    display: block;
+    opacity: 0.75;
+    transition: opacity 0.15s;
+}
+
+.surge-link:hover .surge-icon {
+    opacity: 1;
+}
+
+/* =============================================
+   Hidden (search filter)
+   ============================================= */
+.hidden {
+    display: none !important;
+}
+
+/* =============================================
+   Responsive
+   ============================================= */
+@media (max-width: 600px) {
+    .container {
+        padding: 24px 16px 40px;
+    }
+
+    .site-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .btn-copy {
+        padding: 2px 7px;
+    }
+}
