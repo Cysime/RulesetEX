@@ -1,31 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ── Folder toggle ────────────────────────────────────────────────────────
     document.querySelectorAll('.folder-header').forEach((header) => {
-        header.addEventListener('click', () => {
+        header.addEventListener('click', (e) => {
+            e.preventDefault();
             header.closest('li.folder').classList.toggle('collapsed');
         });
     });
 
     // ── Copy URL to clipboard ────────────────────────────────────────────────
+    function handleCopy(btn) {
+        const relUrl = btn.dataset.url;
+        const absUrl = new URL(relUrl, window.location.href).href;
+
+        const showCopied = () => {
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.classList.remove('copied');
+            }, 1800);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(absUrl).then(showCopied).catch(() => {
+                fallbackCopy(absUrl, showCopied);
+            });
+        } else {
+            fallbackCopy(absUrl, showCopied);
+        }
+    }
+
     document.querySelectorAll('.file-icon-wrapper').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const relUrl = btn.dataset.url;
-            const absUrl = new URL(relUrl, window.location.href).href;
-
-            const showCopied = () => {
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.classList.remove('copied');
-                }, 1800);
-            };
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(absUrl).then(showCopied).catch(() => {
-                    fallbackCopy(absUrl, showCopied);
-                });
-            } else {
-                fallbackCopy(absUrl, showCopied);
+            handleCopy(btn);
+        });
+        // Keyboard accessibility (Enter / Space)
+        btn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCopy(btn);
             }
         });
     });

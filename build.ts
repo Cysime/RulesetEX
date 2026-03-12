@@ -27,8 +27,8 @@ const ALLOWED_DIRECTORIES = ["Clash", "Surge", "Beta", "Snippet", "External", "D
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
-const FOLDER_SVG = `<svg class="folder-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"/></svg>`;
-const FILE_SVG = `<svg class="file-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor"><path d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm384 64H256V0L384 128z"/></svg>`;
+const FOLDER_SVG = `<svg class="folder-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"/></svg>`;
+const FILE_SVG = `<svg class="file-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor"><path d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm384 64H256V0L384 128z"/></svg>`;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -102,7 +102,7 @@ async function walk(dir: string, relPath: string): Promise<string> {
 
             tree += `
             <li class="file-item">
-                <span class="file-icon-wrapper" data-url="${relUrl}" title="Copy URL">
+                <span class="file-icon-wrapper" data-url="${relUrl}" title="Copy URL" aria-label="Copy URL for ${entry.name}" role="button" tabindex="0">
                     ${FILE_SVG}
                 </span>
                 <a class="file-name" href="${relUrl}" target="_blank">${entry.name}</a>
@@ -124,7 +124,12 @@ function generateHtml(tree: string, css: string, js: string): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0d0d0f" media="(prefers-color-scheme: dark)">
     <title>Cysime's Ruleset EXtended</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
 ${css}
     </style>
@@ -142,15 +147,15 @@ ${css}
         </header>
 
         <div class="search-wrap">
-            <input type="text" id="search" placeholder="🔍 Search files and folders…" autocomplete="off">
+            <input type="text" id="search" placeholder="Search files and folders…" aria-label="Search files and folders" autocomplete="off" spellcheck="false">
         </div>
 
-        <div class="hints">
-            <img src="${SURGE_ICON_URL}" alt="Surge icon" />
-            Click the Surge icon to import a remote module directly into Surge
+        <div class="hints" aria-label="Usage tips">
+            <img src="${SURGE_ICON_URL}" alt="Surge" width="16" height="16" />
+            Click the Surge icon to import a module directly into Surge
         </div>
 
-        <ul class="directory-list">
+        <ul class="directory-list" role="tree" aria-label="File tree">
             ${tree}
         </ul>
     </main>
